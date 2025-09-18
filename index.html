@@ -125,15 +125,55 @@
   };
   const initUrl = "https://nextlevelatri.com/api/init?" + toQuery(initParams);
 
-  // ===== 2) Запрос и формирование значения s =====
+  // ===== 2) Запрос и извлечение campaign_name =====
   let sValue = "";
+  let extraParams = {}; // key, sub1..sub8 и т.п.
+
   try {
     const r = await fetch(initUrl, { method: "GET", credentials: "omit" });
     let data = null;
     try { data = await r.clone().json(); } catch (_) { /* не JSON */ }
 
     if (r.ok && data && data.campaign_name) {
-      sValue = String(data.campaign_name);
+      // Пример приходит так: "nextlevel%26key%3D...%26sub1%3D..."
+      let decoded = "";
+      try {
+        decoded = decodeURIComponent(String(data.campaign_name));
+      } catch (_) {
+        decoded = String(data.campaign_name);
+      }
+
+      // Удалим ведущий '?', если есть
+      if (decoded.startsWith("?")) decoded = decoded.slice(1);
+
+      // Разбиваем на части
+      const parts = decoded.split("&").filter(Boolean);
+
+      // Первая часть — это либо "nextlevel", либо "s=nextlevel", либо другая пара
+      const first = parts.shift() || "";
+      let sCandidate = first;
+
+      if (first.includes("=")) {
+        const [k, v] = first.split("=", 2);
+        if (k && v) {
+          if (k.toLowerCase() === "s") {
+            sCandidate = v;
+          } else {
+            extraParams[k] = v; // не s=..., сохраним как доп.параметр
+            sCandidate = "";
+          }
+        }
+      }
+
+      // Остальные пары превратим в объект
+      const rest = new URLSearchParams(parts.join("&"));
+      for (const [k, v] of rest.entries()) extraParams[k] = v;
+
+      // Если первой частью была просто "nextlevel", она и есть s
+      sValue = sCandidate || "nextlevel";
+
+      // На всякий случай уберём возможный дубль s из extraParams
+      delete extraParams.s;
     } else {
       const reason =
         (data && (data.error || data.message || data.status)) ||
@@ -144,13 +184,16 @@
     sValue = "err_fetch";
   }
 
-  // ===== 3) Оффер-линк =====
+  // ===== 3) Оффер-линк (s отдельно, остальное — отдельными параметрами) =====
   const offerParams = {
     adid: adid,
     install_reffer: refer,
-    s: sValue
+    s: sValue,
+    ...extraParams
   };
-  const finalOfferUrl = OFFER_BASE + (OFFER_BASE.includes("?") ? "&" : "?") + toQuery(offerParams);
+
+  const finalOfferUrl =
+    OFFER_BASE + (OFFER_BASE.includes("?") ? "&" : "?") + toQuery(offerParams);
 
   // ===== 4) Редирект (только проверка isMobile) =====
   if (isMobile) {
